@@ -34,7 +34,7 @@ async function agregarCancion(titulo, artista, tono) {
 const cancionesTodas = async () => {
     try {
       const consulta = {
-        text: "SELECT * FROM canciones",
+        text: "SELECT * FROM canciones order by id",
         // rowMode: "array",
       };
       const res = await pool.query(consulta);
@@ -85,7 +85,7 @@ const actualizarCancion = async function(id, titulo, artista, tono) {
 const eliminarCancion = async (id) => {
     try {
         const consulta = {
-            text: "DELETE FROM canciones WHERE id = $1",
+            text: "DELETE FROM canciones WHERE id = $1 returning *",
             values: [id],
         };
         const res = await pool.query(consulta);
@@ -99,4 +99,14 @@ const eliminarCancion = async (id) => {
 
 // eliminarCancion(1)
 
-module.exports = {agregarCancion,cancionesTodas,actualizarCancion,eliminarCancion};
+const verificarExistenciaCancion = async (id) => {
+    const consulta = {
+        text: "SELECT * FROM canciones WHERE id = $1",
+        values: [id]
+    };
+    const res = await pool.query(consulta);
+    return res.rowCount > 0; // Devuelve true si la canción existe
+}
+
+
+module.exports = {agregarCancion,cancionesTodas,actualizarCancion,eliminarCancion,verificarExistenciaCancion};

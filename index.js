@@ -1,5 +1,5 @@
 //consultas a bd
-const { agregarCancion, cancionesTodas, actualizarCancion, eliminarCancion } = require("./consultas/consultas.js");
+const { agregarCancion, cancionesTodas, actualizarCancion, eliminarCancion,verificarExistenciaCancion } = require("./consultas/consultas.js");
 //express
 const express = require('express');
 const app = express()
@@ -7,6 +7,10 @@ const app = express()
 app.listen(3000, () => console.log('servidor en puerto 3000'));
 //middleware para recibir desde el front como json
 app.use(express.json());
+
+//carpeta public
+app.use('/front', express.static(__dirname + '/public'));
+
 //servir index
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/index.html");
@@ -35,7 +39,6 @@ app.post('/cancion', async (req, res) => {
 // get /canciones tiene que res.json todos los registros de tabla canciones
 
 app.get('/canciones', async (req,res) => {
-
     try{
         const datos = Object.values(req.body);
         const respuesta = await cancionesTodas(datos);
@@ -72,20 +75,26 @@ app.put('/cancion/:id', async (req, res) => {
 
 // DELETE /cancion para eliminar una canción existente
 app.delete('/cancion', async (req, res) => {
-    const {id} = req.query;
-    console.log(id)
+    const { id } = req.query;
+    console.log("id:", id);
     try {
-        const cancionesEliminadas = await eliminarCancion(id);
-        if (cancionesEliminadas.length > 0) {
-            res.status(200).send(`Canción con ID ${id} eliminada correctamente`);
+        // Primero verifica si la canción existe
+        const existencia = await verificarExistenciaCancion(id);
+        if (!existencia) {
+            return res.status(404).send(`No se encontró ninguna canción con ID ${id} para eliminar`);
+        }
+
+        // Procede a eliminar la canción
+        const resultado = await eliminarCancion(id);
+        if (resultado.rowCount === 0) {
+            return res.status(404).send(`No se encontró ninguna canción con ID ${id} para eliminar`);
         } else {
-            res.status(404).send(`No se encontró ninguna canción con ID ${id} para eliminar`);
+            return res.status(200).send(`Canción con ID ${id} eliminada correctamente`);
         }
     } catch (error) {
-        res.status(500).send("Error al eliminar canción: " + error.message);
+        return res.status(500).send("Error al eliminar canción: " + error.message);
     }
 });
-
 
 //ni enedit ni elim no hay que valdar si existeo no
 
