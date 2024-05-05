@@ -1,6 +1,6 @@
 //conexion base de datos
-
 const pg = require('pg');
+//.env
 require('dotenv').config();
 
 const { Pool } = pg;
