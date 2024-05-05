@@ -18,8 +18,5 @@ const config = {
 
 const pool = new Pool(config);
 
-// Este console.log solo se ejecutará en Node.js
-// console.log(config);
-
 module.exports = pool;
 

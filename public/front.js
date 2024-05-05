@@ -46,19 +46,13 @@ function nuevaCancion() {
   };
   console.log(data);
   axios.post(url, data).then(() => getData());
-
 }
 
 function eliminarCancion(i, id) {
-  axios.delete(url + "?id=" + id)
-    .then(() => {
-      alert("Canción " + canciones[i].titulo + " eliminada");
-      getData();
-    })
-    .catch(error => {
-      console.error("Error al eliminar la canción:", error);
-      alert("Error al eliminar la canción: " + (error.response?.statusText || "Sin mensaje de error"));
-    });
+  axios.delete(url + "?id=" + id).then(() => {
+    alert("Canción " + canciones[i].titulo + " eliminada");
+    getData();
+  });
 }
 
 function prepararCancion(i, id) {
@@ -81,6 +75,7 @@ function editarCancion(id) {
       tono: tono.value,
     })
     .then(() => {
+      alert("Canción editada correctamente");
       getData();
       document.getElementById("agregar").style.display = "block";
       document.getElementById("editar").style.display = "none";
