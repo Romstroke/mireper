@@ -9,11 +9,11 @@ const pool = require('../config/db.js');
 
 // POST /cancion: Recibe los datos correspondientes a una canción y realiza la inserción en la tabla canciones. 
 
-async function agregarCancion(id, titulo, artista, tono) {
+async function agregarCancion(titulo, artista, tono) {
     try {
         const consulta = {
-            text: "insert into canciones values ($1, $2, $3, $4) returning *",
-            values: [id, titulo, artista, tono]
+            text: "insert into canciones (titulo,artista,tono) values ($1, $2, $3) returning *",
+            values: [titulo, artista, tono]
         };
 
         const result = await pool.query(consulta);
@@ -35,7 +35,7 @@ const cancionesTodas = async () => {
     try {
       const consulta = {
         text: "SELECT * FROM canciones",
-        rowMode: "array",
+        // rowMode: "array",
       };
       const res = await pool.query(consulta);
       console.log(
@@ -84,18 +84,19 @@ const actualizarCancion = async function(id, titulo, artista, tono) {
 
 const eliminarCancion = async (id) => {
     try {
-      const consulta = {
-        text: "delete from canciones where id = $1",
-        values: [id],
-      };
-      const res = await pool.query(consulta);
-      console.log(`${JSON.stringify(res.rows)} Cancion con id ${id} eliminada correctamente!`);
-      return res.rows;
-   
+        const consulta = {
+            text: "DELETE FROM canciones WHERE id = $1",
+            values: [id],
+        };
+        const res = await pool.query(consulta);
+        console.log(`Canción con id ${id} eliminada correctamente!`);
+        return res.rowCount; // Devuelve el número de filas eliminadas
     } catch (error) {
-      console.log(error.code, error.message);
-  }
-  };
+        console.error("Error al eliminar canción:", error);
+        throw error; // Lanza el error nuevamente para manejarlo en el contexto que llama a esta función
+    }
+};
+
 // eliminarCancion(1)
 
-module.exports = {agregarCancion,cancionesTodas};
+module.exports = {agregarCancion,cancionesTodas,actualizarCancion,eliminarCancion};
